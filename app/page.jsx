@@ -1374,4 +1374,35 @@ function ResultScreen({ T, dark, onToggle, exam, score, onBack }) {
 // ══════════════════════════════════════════════════════════
 // ROOT APP
 // ══════════════════════════════════════════════════════════
-expo
+export default function App() {
+  const [dark, setDark]       = useState(true);
+  const [exams, setExams]     = useState([SEED]);
+  const [screen, setScreen]   = useState("login");
+  const [role, setRole]       = useState(null);
+  const [candidate, setCand]  = useState(null);
+  const [activeExam, setActiveExam] = useState(null);
+  const [result, setResult]   = useState(null);
+
+  const T = dark ? DARK : LIGHT;
+  dark_ref = dark;
+  const toggle = () => setDark(d => !d);
+
+  const handleLogin = (r, cand) => {
+    setRole(r);
+    if (r==="admin") { setScreen("admin"); return; }
+    setCand(cand); setScreen("select");
+  };
+  const handleLogout = () => { setRole(null); setCand(null); setScreen("login"); };
+  const handleStart  = (exam) => { setActiveExam(exam); setScreen("exam"); };
+  const handleFinish = (score) => { setResult(score); setScreen("result"); };
+
+  return (
+    <>
+      {screen==="login"  && <LoginScreen  T={T} dark={dark} onToggle={toggle} exams={exams} onLogin={handleLogin}/>}
+      {screen==="admin"  && <AdminPanel   T={T} dark={dark} onToggle={toggle} exams={exams} setExams={setExams} onLogout={handleLogout}/>}
+      {screen==="select" && <ExamSelect   T={T} dark={dark} onToggle={toggle} exams={exams} candidate={candidate} onStart={handleStart} onLogout={handleLogout}/>}
+      {screen==="exam"   && <ExamEngine   T={T} dark={dark} onToggle={toggle} exam={activeExam} candidate={candidate} onFinish={handleFinish}/>}
+      {screen==="result" && <ResultScreen T={T} dark={dark} onToggle={toggle} exam={activeExam} score={result} onBack={()=>setScreen("select")}/>}
+    </>
+  );
+}
